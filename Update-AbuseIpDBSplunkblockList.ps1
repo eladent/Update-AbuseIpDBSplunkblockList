@@ -98,7 +98,7 @@ foreach ($oldip in $oldlist){
     if(($oldip.date) -gt ($now.AddDays($MinLatestReport)) -and ($blacklistIP.ip.IndexOf($oldip.ip) -eq -1)){
         # Maintain this IP in blocklist since the ioc is still Fresh
         Write-Host ("Maintaining $($oldip.src) in blocklist")
-        $blacklistIP +=  @{"ip"="$($oldip.src)";date="$oldip.date"}
+        $blacklistIP +=  @{"ip"="$($oldip.src)";date="$($oldip.date)"}
     }
 }
 
