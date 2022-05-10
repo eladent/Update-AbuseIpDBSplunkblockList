@@ -97,8 +97,10 @@ $oldlist = Get-Content $BlacklistIPJSONFile | ConvertFrom-Json
 foreach ($oldip in $oldlist){
     if(($oldip.date) -gt ($now.AddDays($MinLatestReport)) -and ($blacklistIP.ip.IndexOf($oldip.ip) -eq -1)){
         # Maintain this IP in blocklist since the ioc is still Fresh
-        Write-Host ("Maintaining $($oldip.ip) in blocklist")
-        $blacklistIP +=  @{"ip"="$($oldip.ip)";date="$($oldip.date)"}
+        if ($oldip.ip -ne ""){
+            Write-Host ("Maintaining $($oldip.ip) in blocklist")
+            $blacklistIP +=  @{"ip"="$($oldip.ip)";date="$($oldip.date)"}
+        }
     }
 }
 
@@ -110,7 +112,9 @@ $blacklistIP | ConvertTo-Json -Compress | Out-File $BlacklistIPJSONFile
 $IpsetBlockkist_new = ($IpsetBlockkist+"_new")
 Invoke-Expression ("ipset create $IpsetBlockkist_new hash:ip hashsize 4096")
 Foreach ($ip in $blacklistIP){ # Add Ip into it
-    Invoke-Expression ("ipset add $IpsetBlockkist_new $($ip.ip)")
+    if ($ip.ip -ne ""){
+        Invoke-Expression ("ipset add $IpsetBlockkist_new $($ip.ip)")
+    }
 }
 #Swap Production with the new Blocklist
 Invoke-Expression ("ipset -W $IpsetBlockkist $IpsetBlockkist_new")
